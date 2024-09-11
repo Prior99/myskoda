@@ -271,7 +271,11 @@ class MySkodaHub:
             headers=await self._headers(),
         ) as response:
             _LOGGER.debug("vin %s: Received position")
-            return Position(await response.json())
+            try:
+                return Position(await response.json())
+            except IndexError:
+                # FIXME dirty fix to allow data update even when position is not available (e.g. vehicle in motion)
+                return Position({"positions":[{}]})
 
     async def get_health(self, vin):
         """Retrieve health information for the specified vehicle."""
